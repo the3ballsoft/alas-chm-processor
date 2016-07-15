@@ -51,14 +51,9 @@ def parse(text, struct, folder, n):
     obj["content"] = ctn
     obj["raw"] = clean_text( obj["content"] ).replace("'", "\\'").replace('"', '\\"')
 
-    print colored('Proccesed: '+str(n)+'->'+obj["file_ref"], 'blue')
+    print colored('Proccesed: '+str(n)+' -> '+obj["file_ref"], 'blue')
 
     struct.append(obj)
-
-# write file
-def saveFile(name, content, path):
-    with open(path+name, 'wf') as file_:
-        file_.write(content.encode('utf8'))
 
 # Print iterations progress
 def printProgress (iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 100):
@@ -91,8 +86,8 @@ def main():
     # filehhc = sys.argv[3]
 
     strOut = """
-            -- -- Estructura de tabla para la tabla `help_context` --
-            CREATE TABLE IF NOT EXISTS `help_context` (
+            -- -- Estructura de tabla para la tabla `alas_leg` --
+            CREATE TABLE IF NOT EXISTS `alas_leg` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `map_ref` varchar(255) NOT NULL,
             `file_ref` varchar(255) NOT NULL,
@@ -103,7 +98,7 @@ def main():
             --
             -- Volcado de datos para la tabla `help_context`
             --
-            INSERT INTO `help_context` (`id`, `map_ref`, `file_ref`, `content`, `raw`) VALUES
+            INSERT INTO `alas_leg` (`id`, `map_ref`, `file_ref`, `content`, `raw`) VALUES
             """
 
     # READ FILE .hhp
@@ -120,21 +115,35 @@ def main():
             # if n > 20: break
 
 
-    print colored('Proccesed: '+str(len(struct)), 'green')
 
-    l = len(struct)
-    f = open('out.sql','wb')
-    f.write(strOut) # python will convert \n to os.linesep
+    print colored('Proccesed: '+str(len(struct)-1), 'green')
+
+    nfile = 'out.sql'
+    rec = 1
+    l = len(struct)-1
+    f = open(nfile,'wb')
+    f.write(strOut) # write header content
     for ind, obj in enumerate(struct):
         row = '(null, "'+obj["map_ref"]+'", "'+obj["file_ref"]+'", "'+obj["content"]+'", "'+obj["raw"]+'"),'
-        if ind == len(struct):
+        if ind == l:
             row = row[:-1]+';'  # terminate excution
-        f.write(row.encode('utf8')) # python will convert \n to os.linesep
+            f.write(row.encode('utf8')) # write normal line
+        # SPLIT FILES 1000 regs
+        # elif ind > 1000*rec:
+            # f.write((row[:-1]+';').encode('utf8')) # write last line of file
+            # f.close()
+            # f = open(str(rec)+nfile,'wb')
+            # f.write(strOut) # write header content for new file
+            # rec += 1
+        # SPLIT FILES 1000 regs END
+        else:
+            f.write(row.encode('utf8')) # write normal line
+
+
         printProgress(ind, l, prefix = 'Progress:', suffix = 'Complete', barLength = 50)
 
+
     f.close() # you can omit in most cases as the destructor will call it
-    # white sql out
-    # saveFile('out.sql', strOut, '')
     print colored('\nSaved: out.sql', 'green')
 
     # pp.pprint(struct)
