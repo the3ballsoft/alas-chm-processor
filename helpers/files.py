@@ -1,14 +1,10 @@
 #!/usr/bin/python3.5
 # -*- coding: UTF-8 -*-
 
-import sys, pprint
+import sys
 from termcolor import colored
-from subprocess import PIPE, run, call, Popen
-import re
-
-pp = pprint.PrettyPrinter(indent=4)
-
-D_TEMP = 'tmp/' # route to temporary files
+from subprocess import PIPE, Popen
+from .settings import D_TEMP
 
 """
 Read files content and return as string
@@ -29,20 +25,41 @@ TYPE: zip or 7z
 """
 def unzip(f, dest=''):
     command = 'unzip {0} -d {1}'.format(f, D_TEMP+dest);
-    print(colored(command, 'blue'));
+    print(colored(command, 'blue')); #DEBUG
+
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE)
+    p.communicate(); # wait to completation
     return D_TEMP+dest
 
 def clearDirectory(url):
     command = 'rm -Rf {0}'.format(D_TEMP+url);
-    print(colored(command, 'blue'));
+    print(colored(command, 'blue')); #DEBUG
+
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE)
+    p.communicate(); # wait to completation
 
 def findFile(folder, pattern):
     command = 'find {0} -type f -name {1}'.format(D_TEMP+folder, pattern);
-    print(colored(command, 'blue'));
+    print(colored(command, 'blue')); #DEBUG
+
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE)
-    return p.stdout.readline().decode('utf-8').strip()
+    found = p.stdout.readline().decode('utf-8').strip()
+    p.communicate(); # wait to completation
+    return found
+
+import os
+def scanFolder(foldername, fulldir = True, suffix=".htm"):
+    file_list_tmp = os.listdir(foldername)
+    file_list = []
+    if fulldir:
+        for item in file_list_tmp:
+            if item.endswith(suffix):
+                file_list.append(os.path.join(foldername, item))
+    else:
+        for item in file_list_tmp:
+            if item.endswith(suffix):
+                file_list.append(item)
+    return file_list
 
 # Print iterations progress
 def printProgress (iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 100):
