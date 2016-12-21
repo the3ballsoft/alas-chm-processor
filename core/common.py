@@ -4,26 +4,34 @@
 from helpers import files, transform
 from helpers import settings
 
-# files been send wiht complete url
-key = settings.OPTS[1]
-url = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.chm'.format(key)
-urlfile = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.txt'.format(key)
-
-
-def clean():
+def clean(key):
     files.clearDirectory(key)
 
-def unzip():
+def unzip(key, url):
     files.unzip7z(url, key) #unzip main file
 
-def generateSql():
+def generateSql(key, urlfile):
     lst = transform.getListHelpContext(key, urlfile)
     transform.getSQL(lst, key)
 
 def run():
-    clean()
-    unzip()
-    generateSql()
+        # key = 'EXP'
+        # url = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.chm'.format(key)
+        # urlfile = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.txt'.format(key)
+
+        # clean(key)
+        # unzip(key, url)
+        # generateSql(key, urlfile)
+
+    for key in settings.OPTS:
+        url = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.chm'.format(key)
+        urlfile = '/home/joseechavez/Downloads/alas/prueba/{0}/{0}.txt'.format(key)
+
+        clean(key)
+        unzip(key, url)
+        generateSql(key, urlfile)
+
+
 
 
 

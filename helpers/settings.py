@@ -17,9 +17,8 @@ sqlHeader = """
         `text_content` longtext,
         `html_content` longtext NOT NULL,
         PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
         --
         -- Volcado de datos para la tabla `help_text`
         --
-        INSERT INTO `help_text` (`id`, `help_type`, `map_ref`, `file_ref`, `text_content`, `html_content`) VALUES
         """

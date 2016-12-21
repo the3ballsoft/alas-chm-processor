@@ -5,7 +5,11 @@ from bs4 import BeautifulSoup as Soup
 from termcolor import colored
 from .settings import D_TEMP, PP, sqlHeader
 from .files import getContent, getContentHtm, scanFolder, printProgress, createPath
-import unicodedata, re
+import unicodedata
+
+def cleanContent(ctn):
+    # ctn = unicodedata.normalize('NFD', ctn).encode('ascii', 'ignore').decode('ascii')
+    return ctn.replace("'", "\\'").replace('"', '\\"')
 
 """
 remove accent mark, uppercas
@@ -67,7 +71,7 @@ def getListHelpContext(key, url):
         # send ffolder to remove whom found
         ctn = extractContent( obj['file_ref'], D_TEMP+key, ffolder )
         if ctn == 'ERROR': notfound+=1
-        obj["html_content"] = ctn.replace("'", "\\'").replace('"', '\\"')
+        obj["html_content"] = cleanContent(ctn)
         obj["text_content"] = extract_raw( obj["html_content"] )
         out.append(obj)
 
@@ -79,7 +83,7 @@ def getListHelpContext(key, url):
                 'map_ref': '' }
         ctn = extractContent( l, D_TEMP+key )
         if ctn == 'ERROR': notfound+=1
-        obj["html_content"] = ctn.replace("'", "\\'").replace('"', '\\"')
+        obj["html_content"] = cleanContent(ctn)
         obj['text_content'] = extract_raw( obj["html_content"] )
         out.append(obj)
 
@@ -97,13 +101,15 @@ def getSQL(struct, key):
     f = open(s_path+nfile,'wb')
     f.write(sqlHeader.encode('utf8')) # write header content
     for ind, obj in enumerate(struct):
-        row = '(null, "%s", "%s", "%s", "%s", "%s"),' % (obj['help_type'], obj['map_ref'], obj['file_ref'], obj['text_content'], obj['html_content'])
-        if ind == l:
-            row = row[:-1]+';'  # terminate excution
-            f.write(row.encode('utf8')) # write normal line
-        else:
-            f.write(row.encode('utf8')) # write normal line
-            printProgress(ind+1, l, prefix = 'Progress:', suffix = 'Complete', barLength = 50)
+        row = """
+        INSERT INTO `help_text`
+        (`id`, `help_type`, `map_ref`, `file_ref`, `text_content`, `html_content`)
+        VALUES
+        (null, "%s", "%s", "%s", "%s", "%s");
+        """ % (obj['help_type'], obj['map_ref'], obj['file_ref'], obj['text_content'], obj['html_content'])
+
+        f.write(row.encode('utf8')) # write normal line
+        printProgress(ind+1, l, prefix = 'Progress:', suffix = 'Complete', barLength = 50)
 
     f.close() # you can omit in most cases as the destructor will call it
     print(colored('\nSaved: %s.sql' % key, 'green'))
