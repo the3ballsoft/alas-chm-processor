@@ -18,13 +18,21 @@ def getContent(url):
     except EnvironmentError: # parent of IOError, OSError *and* WindowsError where available
         print(colored(url+' COULD  NOT BE READ', 'red'))
 
+def getContentHtm(url):
+    # print colored( url, 'red');
+    try:
+        with open(url, 'r', encoding='latin-1') as f:
+            return f.read()
+    except EnvironmentError: # parent of IOError, OSError *and* WindowsError where available
+        print(colored(url+' COULD  NOT BE READ', 'red'))
+
 """
 unzip shits
 FILE: url to file
 TYPE: zip or 7z
 """
-def unzip(f, dest=''):
-    command = 'unzip {0} -d {1}'.format(f, D_TEMP+dest);
+def unzip7z(f, dest=''):
+    command = '7z x {0} -o{1}'.format(f, D_TEMP+dest);
     print(colored(command, 'blue')); #DEBUG
 
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE)
@@ -60,6 +68,10 @@ def scanFolder(foldername, fulldir = True, suffix=".htm"):
             if item.endswith(suffix):
                 file_list.append(item)
     return file_list
+
+def createPath(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 # Print iterations progress
 def printProgress (iteration, total, prefix = '', suffix = '', decimals = 2, barLength = 100):

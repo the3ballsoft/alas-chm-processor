@@ -3,7 +3,7 @@
 
 import sys
 from termcolor import colored
-from core.common import run, clean, unzip, getList
+from core.common import run, clean, unzip, generateSql
 
 """
 Execute individual taks by command
